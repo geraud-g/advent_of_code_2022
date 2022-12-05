@@ -4,7 +4,7 @@ mod day_01;
 mod day_02;
 mod day_03;
 mod day_04;
-// mod day_05;
+mod day_05;
 // mod day_06;
 // mod day_07;
 // mod day_08;
@@ -45,7 +45,7 @@ fn solve_day(day: i32) {
         2 => day_02::day_02,
         3 => day_03::day_03,
         4 => day_04::day_04,
-        // 5 => day_05::day_05,
+        5 => day_05::day_05,
         // 6 => day_06::day_06,
         // 7 => day_07::day_07,
         // 8 => day_08::day_08,
