@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use itertools::Itertools;
 use advent_of_code::utils::inputs::get_file;
 
@@ -33,8 +32,7 @@ fn part_b(datastream_buffer: &str) -> usize {
 
 fn get_consecutive_distinct_characters_idx(text: &str, char_nbr: usize) -> usize {
     for (idx, window) in text.chars().collect_vec().windows(char_nbr).enumerate() {
-        let hashset_window: HashSet<&char> = window.iter().collect();
-        if hashset_window.len() == char_nbr {
+        if window.iter().unique().count() == char_nbr {
             return idx;
         }
     }
