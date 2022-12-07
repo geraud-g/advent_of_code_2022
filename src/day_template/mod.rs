@@ -1,10 +1,7 @@
-use std::collections::HashSet;
-use std::iter::repeat_with;
-
 use advent_of_code::utils::inputs::get_file;
 
 
-pub fn day_01() {
+pub fn day_00() {
     // let inputs = get_input();
     //
     // let solution_a = part_a(&inputs);
@@ -16,6 +13,7 @@ pub fn day_01() {
 
 
 fn get_input() -> Vec<i32> {
+    let file = get_file("./src/day_00/input.txt");
     unimplemented!()
 }
 
