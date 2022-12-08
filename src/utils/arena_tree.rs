@@ -10,17 +10,17 @@ impl<T> ArenaTree<T>
     where
         T: PartialEq
 {
-    fn node(&mut self, val: T) -> usize {
-        //first see if it exists
-        for node in &self.arena {
-            if node.val == val {
-                return node.idx;
-            }
-        }
-        // Otherwise, add new node
+    pub fn insert_node(&mut self, val: T, parent: Option<usize>) -> usize {
         let idx = self.arena.len();
-        self.arena.push(Node::new(idx, val));
+        self.arena.push(Node::new(idx, val, parent));
+        if let Some(parent_idx) = parent {
+            self.arena.get_mut(parent_idx).unwrap().children.push(idx);
+        }
         idx
+    }
+
+    pub fn get_unwrapped(&self, idx: usize) -> &Node<T> {
+        self.arena.get(idx).unwrap()
     }
 }
 
@@ -41,11 +41,11 @@ impl<T> Node<T>
     where
         T: PartialEq
 {
-    fn new(idx: usize, val: T) -> Self {
+    fn new(idx: usize, val: T, parent: Option<usize>) -> Self {
         Self {
             idx,
             val,
-            parent: None,
+            parent,
             children: vec![],
         }
     }
