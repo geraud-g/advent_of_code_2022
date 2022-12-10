@@ -33,7 +33,7 @@ fn get_input() -> Vec<Motion> {
 
 fn get_rope_tail_nodes_visit_nbr(motions: &[Motion], rope_size: usize) -> usize {
     let mut rope = vec![(0, 0); rope_size];
-    let mut tail_positions: HashSet<(i32, i32)> = HashSet::new();
+    let mut tail_positions = HashSet::new();
 
     for motion in motions {
         for _ in 0..motion.1 {
@@ -48,41 +48,23 @@ fn get_rope_tail_nodes_visit_nbr(motions: &[Motion], rope_size: usize) -> usize 
 }
 
 fn move_head(head: (i32, i32), motion: &Motion) -> (i32, i32) {
-    let modifier = match motion.0 {
+    let (y_modifier, x_modifier) = match motion.0 {
         Direction::Up => (-1, 0),
         Direction::Down => (1, 0),
         Direction::Left => (0, -1),
         Direction::Right => (0, 1),
     };
-    let mut new_position = head;
-
-    new_position = (
-        new_position.0 + modifier.0,
-        new_position.1 + modifier.1,
-    );
-
-    new_position
+    (head.0 + y_modifier, head.1 + x_modifier)
 }
 
 fn move_tail(head: (i32, i32), tail: (i32, i32)) -> (i32, i32) {
     if points_touching(head, tail) {
         return tail;
     }
-    let mut new_tail = tail;
 
-    if tail.0 < head.0 {
-        new_tail.0 += 1;
-    }
-    if tail.0 > head.0 {
-        new_tail.0 -= 1;
-    }
-    if tail.1 < head.1 {
-        new_tail.1 += 1;
-    }
-    if tail.1 > head.1 {
-        new_tail.1 -= 1;
-    }
-    new_tail
+    let (delta_y, delta_x) = (head.0 - tail.0, head.1 - tail.1);
+    let (new_tail_y, new_tail_x) = (tail.0 + delta_y.signum(), tail.1 + delta_x.signum());
+    (new_tail_y, new_tail_x)
 }
 
 
@@ -92,9 +74,7 @@ fn points_touching(p1: (i32, i32), p2: (i32, i32)) -> bool {
     }
     let (x1, y1) = p1;
     let (x2, y2) = p2;
-    (x1 == x2 - 1 || x1 == x2 + 1 || y1 == y2 - 1 || y1 == y2 + 1)
-        && (x1 == x2 - 1 || x1 == x2 + 1 || x1 == x2)
-        && (y1 == y2 || y1 == y2 - 1 || y1 == y2 + 1)
+    (x1 - x2).abs() <= 1 && (y1 - y2).abs() <= 1
 }
 
 
