@@ -1,18 +1,16 @@
+use advent_of_code::utils::inputs::get_file;
 use std::collections::HashSet;
 use std::str::FromStr;
-use advent_of_code::utils::inputs::get_file;
-
 
 pub fn day_10() {
     let op_list = get_input();
 
-    let solution_a = part_a(&op_list);
-    println!("\t- Solution A is : {}", solution_a);
+    let solution_1 = part_one(&op_list);
+    println!("\t- Solution 1 is : {}", solution_1);
 
-    print!("\t- Solution B is :");
-    part_b(&op_list);
+    print!("\t- Solution 2 is :");
+    part_two(&op_list);
 }
-
 
 fn get_input() -> Vec<Op> {
     get_file("./src/day_10/input.txt")
@@ -21,8 +19,7 @@ fn get_input() -> Vec<Op> {
         .collect()
 }
 
-
-fn part_a(op_list: &[Op]) -> i32 {
+fn part_one(op_list: &[Op]) -> i32 {
     let mut register_x = 1;
     let mut current_cycle = 0;
     let signal_steps: HashSet<i32> = vec![20, 60, 100, 140, 180, 220].into_iter().collect();
@@ -44,8 +41,7 @@ fn part_a(op_list: &[Op]) -> i32 {
     sum_signal_strength
 }
 
-
-fn part_b(op_list: &[Op]) {
+fn part_two(op_list: &[Op]) {
     let mut register_x = 1;
     let mut current_cycle = 0;
 
@@ -74,13 +70,11 @@ fn draw_pixel(sprite_position: i32, current_cycle: i32) {
     }
 }
 
-
 #[derive(Debug)]
 enum Op {
     AddX(i32),
     Noop,
 }
-
 
 impl FromStr for Op {
     type Err = ();

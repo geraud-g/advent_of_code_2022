@@ -4,11 +4,11 @@ use advent_of_code::utils::inputs::get_file;
 pub fn day_00() {
     // let inputs = get_input();
     //
-    // let solution_a = part_a(&inputs);
-    // println!("\t- Solution A is : {}", solution_a);
+    // let solution_1 = part_one(&inputs);
+    // println!("\t- Solution 1 is : {}", solution_1);
     //
-    // let solution_b = part_b(&inputs);
-    // println!("\t- Solution B is : {}", solution_b);
+    // let solution_2 = part_two(&inputs);
+    // println!("\t- Solution 2 is : {}", solution_2);
 }
 
 
@@ -18,11 +18,11 @@ fn get_input() -> Vec<i32> {
 }
 
 
-fn part_a(inputs: &[i32]) -> i32 {
+fn part_one(inputs: &[i32]) -> i32 {
     unimplemented!()
 }
 
 
-fn part_b(inputs: &[i32]) -> i32 {
+fn part_two(inputs: &[i32]) -> i32 {
     unimplemented!()
 }

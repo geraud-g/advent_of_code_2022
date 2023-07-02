@@ -1,134 +1,132 @@
 use advent_of_code::utils::inputs::get_file;
-
+use std::str::FromStr;
 
 pub fn day_02() {
     let strategy_guide = get_input();
 
-    let solution_a = part_a(&strategy_guide);
-    println!("\t- Solution A is : {}", solution_a);
+    let solution_1 = part_one(&strategy_guide);
+    println!("\t- Solution 1 is : {}", solution_1);
 
-    let solution_b = part_b(&strategy_guide);
-    println!("\t- Solution B is : {}", solution_b);
+    let solution_2 = part_two(&strategy_guide);
+    println!("\t- Solution 2 is : {}", solution_2);
 }
 
-
-fn get_input() -> Vec<(Move, String)> {
+/// Returns a vector of tuple (GameAction, `String`), where `String` is how the round needs to end.
+fn get_input() -> Vec<(GameAction, String)> {
     get_file("./src/day_02/input.txt")
         .lines()
-        .map(
-            |line| {
-                let mut moves = line.trim().split(' ');
-                (Move::from_str(moves.next().unwrap()), moves.next().unwrap().to_string())
-            })
+        .map(parse_line)
         .collect()
 }
 
+fn parse_line(line: &str) -> (GameAction, String) {
+    let mut moves = line.trim().split(' ');
+    (
+        GameAction::from_str(moves.next().unwrap()).unwrap(),
+        moves.next().unwrap().to_string(),
+    )
+}
 
-fn part_a(strategy_guide: &[(Move, String)]) -> u16 {
+fn part_one(strategy_guide: &[(GameAction, String)]) -> u16 {
     let mut my_score = 0;
 
     for (op_move, value) in strategy_guide {
-        let my_move = Move::from_str(value);
+        let my_move = GameAction::from_str(value).expect("Cannot parse {value}");
         my_score += my_move.get_score();
         my_score += my_move.get_result(op_move).get_result_value();
     }
     my_score
 }
 
-
-fn part_b(strategy_guide: &[(Move, String)]) -> u16 {
+fn part_two(strategy_guide: &[(GameAction, String)]) -> u16 {
     let mut my_score = 0;
     for (op_move, value) in strategy_guide {
         let expected_result = match value.as_ref() {
-            "X" => Result::Loss,
-            "Y" => Result::Draw,
-            _ => Result::Win
+            "X" => GameResult::Loss,
+            "Y" => GameResult::Draw,
+            _ => GameResult::Win,
         };
-        let new_move = op_move.get_move_from_expected_result(&expected_result);
+        let new_move = op_move.get_action_from_expected_result(&expected_result);
         my_score += new_move.get_score();
         my_score += expected_result.get_result_value();
     }
     my_score
 }
 
-
 #[derive(Debug)]
-enum Move {
+enum GameAction {
     Rock,
     Paper,
     Scissors,
 }
 
-impl Move {
-    fn from_str(value: &str) -> Self {
+impl FromStr for GameAction {
+    type Err = String;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         match value {
-            "A" | "X" => Self::Rock,
-            "B" | "Y" => Self::Paper,
-            "C" | "Z" => Self::Scissors,
-            _ => panic!("Cannot get Move from str `{}`", value)
+            "A" | "X" => Ok(Self::Rock),
+            "B" | "Y" => Ok(Self::Paper),
+            "C" | "Z" => Ok(Self::Scissors),
+            _ => Err("Wrong value `{value}`".to_owned()),
         }
     }
+}
 
+impl GameAction {
     fn get_score(&self) -> u16 {
         match self {
-            Move::Rock => 1,
-            Move::Paper => 2,
-            Move::Scissors => 3,
+            GameAction::Rock => 1,
+            GameAction::Paper => 2,
+            GameAction::Scissors => 3,
         }
     }
 
-    fn get_result(&self, other: &Self) -> Result {
+    fn get_result(&self, other: &Self) -> GameResult {
         match (self, other) {
-            (Move::Rock, Move::Paper) => Result::Loss,
-            (Move::Rock, Move::Scissors) => Result::Win,
-            (Move::Paper, Move::Scissors) => Result::Loss,
-            (Move::Paper, Move::Rock) => Result::Win,
-            (Move::Scissors, Move::Rock) => Result::Loss,
-            (Move::Scissors, Move::Paper) => Result::Win,
-            _ => Result::Draw
+            (GameAction::Rock, GameAction::Paper) => GameResult::Loss,
+            (GameAction::Rock, GameAction::Scissors) => GameResult::Win,
+            (GameAction::Paper, GameAction::Scissors) => GameResult::Loss,
+            (GameAction::Paper, GameAction::Rock) => GameResult::Win,
+            (GameAction::Scissors, GameAction::Rock) => GameResult::Loss,
+            (GameAction::Scissors, GameAction::Paper) => GameResult::Win,
+            _ => GameResult::Draw,
         }
     }
 
-    fn get_move_from_expected_result(&self, result: &Result) -> Self {
+    fn get_action_from_expected_result(&self, result: &GameResult) -> Self {
         match self {
-            Move::Rock => {
-                match result {
-                    Result::Win => Move::Paper,
-                    Result::Loss => Move::Scissors,
-                    _ => Move::Rock
-                }
-            }
-            Move::Paper => {
-                match result {
-                    Result::Win => Move::Scissors,
-                    Result::Loss => Move::Rock,
-                    _ => Move::Paper
-                }
-            }
-            Move::Scissors => {
-                match result {
-                    Result::Win => Move::Rock,
-                    Result::Loss => Move::Paper,
-                    _ => Move::Scissors
-                }
-            }
+            GameAction::Rock => match result {
+                GameResult::Win => GameAction::Paper,
+                GameResult::Loss => GameAction::Scissors,
+                _ => GameAction::Rock,
+            },
+            GameAction::Paper => match result {
+                GameResult::Win => GameAction::Scissors,
+                GameResult::Loss => GameAction::Rock,
+                _ => GameAction::Paper,
+            },
+            GameAction::Scissors => match result {
+                GameResult::Win => GameAction::Rock,
+                GameResult::Loss => GameAction::Paper,
+                _ => GameAction::Scissors,
+            },
         }
     }
 }
 
 #[derive(Debug)]
-enum Result {
+enum GameResult {
     Win,
     Draw,
     Loss,
 }
 
-impl Result {
+impl GameResult {
     fn get_result_value(&self) -> u16 {
         match self {
-            Result::Loss => 0,
-            Result::Draw => 3,
-            Result::Win => 6
+            GameResult::Loss => 0,
+            GameResult::Draw => 3,
+            GameResult::Win => 6,
         }
     }
 }

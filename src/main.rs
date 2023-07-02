@@ -11,9 +11,9 @@ mod day_08;
 mod day_09;
 mod day_10;
 mod day_11;
-// mod day_12;
-// mod day_13;
-// mod day_14;
+mod day_12;
+mod day_13;
+mod day_14;
 // mod day_15;
 // mod day_16;
 // mod day_17;
@@ -26,15 +26,18 @@ mod day_11;
 // mod day_24;
 // mod day_25;
 
-
 fn main() {
     let args: Vec<String> = env::args().collect();
     match args.len() {
-        2 => solve_day(args[1].trim().parse().expect("You must enter a number between 1 and 25.")),
-        _ => invalid_input()
+        2 => solve_day(
+            args[1]
+                .trim()
+                .parse()
+                .expect("You must enter a number between 1 and 25."),
+        ),
+        _ => invalid_input(),
     }
 }
-
 
 fn solve_day(day: i32) {
     if !(1..=25).contains(&day) {
@@ -52,9 +55,9 @@ fn solve_day(day: i32) {
         9 => day_09::day_09,
         10 => day_10::day_10,
         11 => day_11::day_11,
-        // 12 => day_12::day_12,
-        // 13 => day_13::day_13,
-        // 14 => day_14::day_14,
+        12 => day_12::day_12,
+        13 => day_13::day_13,
+        14 => day_14::day_14,
         // 15 => day_15::day_15,
         // 16 => day_16::day_16,
         // 17 => day_17::day_17,

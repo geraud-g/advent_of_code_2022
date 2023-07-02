@@ -1,28 +1,23 @@
+use advent_of_code::utils::arena_tree::ArenaTree;
+use advent_of_code::utils::inputs::get_file;
 use lazy_static::lazy_static;
 use regex::Regex;
-use advent_of_code::utils::inputs::get_file;
-use advent_of_code::utils::arena_tree::ArenaTree;
-
 
 lazy_static! {
-    static ref  RE_CD: Regex = Regex::new(r"(?m)^\s*cd\s+(.+)\s*").unwrap();
+    static ref RE_CD: Regex = Regex::new(r"(?m)^\s*cd\s+(.+)\s*").unwrap();
     static ref RE_DIR: Regex = Regex::new(r"(?m)^dir (\w+)").unwrap();
-    static ref  RE_FILE: Regex = Regex::new(r"(?m)^(\d+)\s+(\w+)").unwrap();
+    static ref RE_FILE: Regex = Regex::new(r"(?m)^(\d+)\s+(\w+)").unwrap();
 }
-
 
 pub fn day_07() {
     let commands = get_input();
-    let mut dir_list = vec![];
-    part_a(&commands, 0, &mut dir_list);
-    println!("\t- Solution A is : {:?}", dir_list.iter().sum::<usize>());
-    assert_eq!(dir_list.iter().sum::<usize>(), 919137);
 
-    let solution_b = part_b(&commands);
-    println!("\t- Solution B is : {:?}", solution_b);
-    assert_eq!(solution_b, 2877389);
+    let solution_1 = part_one(&commands);
+    println!("\t- Solution 1 is : {:?}", solution_1);
+
+    let solution_2 = part_two(&commands);
+    println!("\t- Solution 2 is : {:?}", solution_2);
 }
-
 
 fn get_input() -> ArenaTree<File> {
     let mut arena_tree = ArenaTree::default();
@@ -30,7 +25,7 @@ fn get_input() -> ArenaTree<File> {
     let mut current_path_index = arena_tree.insert_node(root_file, None);
     let root_index = current_path_index;
 
-    for chunk in get_file("./src/day_07/input.txt").split('$').into_iter() {
+    for chunk in get_file("./src/day_07/input.txt").split('$') {
         let mut lines = chunk.lines();
         if let Some(raw_command) = lines.next() {
             // Cd command
@@ -38,17 +33,23 @@ fn get_input() -> ArenaTree<File> {
                 current_path_index = match path.as_ref() {
                     ".." => arena_tree.get_unwrapped(current_path_index).parent.unwrap(),
                     "/" => root_index,
-                    _ => if let Some(directory_idx) = get_directory_idx(&arena_tree, current_path_index, path.as_ref()) {
-                        directory_idx
-                    } else {
-                        arena_tree.insert_node(File::new_directory(path), Some(current_path_index))
+                    _ => {
+                        if let Some(directory_idx) =
+                            get_directory_idx(&arena_tree, current_path_index, path.as_ref())
+                        {
+                            directory_idx
+                        } else {
+                            arena_tree
+                                .insert_node(File::new_directory(path), Some(current_path_index))
+                        }
                     }
                 }
             } else {
                 // Ls command
                 for line in lines {
                     if let Some(value) = RE_DIR.captures(line) {
-                        let new_file = File::new_directory(value.get(1).unwrap().as_str().to_string());
+                        let new_file =
+                            File::new_directory(value.get(1).unwrap().as_str().to_string());
                         arena_tree.insert_node(new_file, Some(current_path_index));
                     } else if let Some(value) = RE_FILE.captures(line) {
                         let new_file = File::new_file(
@@ -72,8 +73,18 @@ fn get_command(line: &str) -> Command {
     }
 }
 
+fn part_one(arena: &ArenaTree<File>) -> usize {
+    let mut dir_list = vec![];
+    get_directories_with_size_at_most(arena, 100_000, 0, &mut dir_list);
+    dir_list.iter().sum::<usize>()
+}
 
-fn part_a(arena: &ArenaTree<File>, idx: usize, dir_list: &mut Vec<usize>) -> usize {
+fn get_directories_with_size_at_most(
+    arena: &ArenaTree<File>,
+    max_size: usize,
+    idx: usize,
+    dir_list: &mut Vec<usize>,
+) -> usize {
     let current_node = arena.get_unwrapped(idx);
     if !current_node.val.is_directory {
         return current_node.val.size;
@@ -81,16 +92,15 @@ fn part_a(arena: &ArenaTree<File>, idx: usize, dir_list: &mut Vec<usize>) -> usi
 
     let mut total = 0;
     for child in &current_node.children {
-        total += part_a(arena, *child, dir_list);
+        total += get_directories_with_size_at_most(arena, max_size, *child, dir_list);
     }
-    if total <= 100_000 {
+    if total <= max_size {
         dir_list.push(total);
     }
     total
 }
 
-
-fn part_b(arena: &ArenaTree<File>) -> usize {
+fn part_two(arena: &ArenaTree<File>) -> usize {
     let mut dir_list = vec![];
     let used_space = get_size(arena, 0);
     let free_space = 70000000 - used_space;
@@ -104,7 +114,6 @@ fn part_b(arena: &ArenaTree<File>) -> usize {
         .unwrap();
     *p
 }
-
 
 fn get_files_sizes(arena: &ArenaTree<File>, idx: usize, dir_list: &mut Vec<usize>) -> usize {
     let current_node = arena.get_unwrapped(idx);
@@ -120,7 +129,6 @@ fn get_files_sizes(arena: &ArenaTree<File>, idx: usize, dir_list: &mut Vec<usize
     dir_list.push(total);
     total
 }
-
 
 fn get_size(arena: &ArenaTree<File>, current_idx: usize) -> usize {
     arena

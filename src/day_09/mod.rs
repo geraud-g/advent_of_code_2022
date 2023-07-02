@@ -1,17 +1,15 @@
-use std::collections::HashSet;
 use advent_of_code::utils::inputs::get_file;
-
+use std::collections::HashSet;
 
 pub fn day_09() {
     let motions = get_input();
 
-    let solution_a = get_rope_tail_nodes_visit_nbr(&motions, 2);
-    println!("\t- Solution A is : {}", solution_a);
+    let solution_1 = get_rope_tail_nodes_visit_nbr(&motions, 2);
+    println!("\t- Solution 1 is : {}", solution_1);
 
-    let solution_b = get_rope_tail_nodes_visit_nbr(&motions, 10);
-    println!("\t- Solution B is : {}", solution_b);
+    let solution_2 = get_rope_tail_nodes_visit_nbr(&motions, 10);
+    println!("\t- Solution 2 is : {}", solution_2);
 }
-
 
 fn get_input() -> Vec<Motion> {
     let mut instructions = vec![];
@@ -22,14 +20,13 @@ fn get_input() -> Vec<Motion> {
             "D" => Direction::Down,
             "L" => Direction::Left,
             "R" => Direction::Right,
-            _ => panic!("Cannot get direction from value {}", values[0])
+            _ => panic!("Cannot get direction from value {}", values[0]),
         };
         let move_nbr = values[1].parse().unwrap();
         instructions.push((direction, move_nbr))
     }
     instructions
 }
-
 
 fn get_rope_tail_nodes_visit_nbr(motions: &[Motion], rope_size: usize) -> usize {
     let mut rope = vec![(0, 0); rope_size];
@@ -67,7 +64,6 @@ fn move_tail(head: (i32, i32), tail: (i32, i32)) -> (i32, i32) {
     (new_tail_y, new_tail_x)
 }
 
-
 fn points_touching(p1: (i32, i32), p2: (i32, i32)) -> bool {
     if p1 == p2 {
         return true;
@@ -76,7 +72,6 @@ fn points_touching(p1: (i32, i32), p2: (i32, i32)) -> bool {
     let (x2, y2) = p2;
     (x1 - x2).abs() <= 1 && (y1 - y2).abs() <= 1
 }
-
 
 #[derive(Debug)]
 enum Direction {

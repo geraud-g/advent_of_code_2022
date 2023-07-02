@@ -1,14 +1,14 @@
 #[derive(Debug, Default)]
 pub struct ArenaTree<T>
-    where
-        T: PartialEq
+where
+    T: PartialEq,
 {
     arena: Vec<Node<T>>,
 }
 
 impl<T> ArenaTree<T>
-    where
-        T: PartialEq
+where
+    T: PartialEq,
 {
     pub fn insert_node(&mut self, val: T, parent: Option<usize>) -> usize {
         let idx = self.arena.len();
@@ -24,11 +24,10 @@ impl<T> ArenaTree<T>
     }
 }
 
-
 #[derive(Debug)]
 pub struct Node<T>
-    where
-        T: PartialEq
+where
+    T: PartialEq,
 {
     pub idx: usize,
     pub val: T,
@@ -36,10 +35,9 @@ pub struct Node<T>
     pub children: Vec<usize>,
 }
 
-
 impl<T> Node<T>
-    where
-        T: PartialEq
+where
+    T: PartialEq,
 {
     fn new(idx: usize, val: T, parent: Option<usize>) -> Self {
         Self {

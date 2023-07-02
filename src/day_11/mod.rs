@@ -1,16 +1,14 @@
 use advent_of_code::utils::inputs::{get_file, LINE_ENDING};
-use std::str::FromStr;
 use itertools::Itertools;
-
+use std::str::FromStr;
 
 pub fn day_11() {
-    let solution_a = play_rounds(&mut get_input(), 20, true);
-    println!("\t- Solution A is : {}", solution_a);
+    let solution_1 = play_rounds(&mut get_input(), 20, true);
+    println!("\t- Solution 1 is : {}", solution_1);
 
-    let solution_b = play_rounds(&mut get_input(), 10000, false);
-    println!("\t- Solution B is : {}", solution_b);
+    let solution_2 = play_rounds(&mut get_input(), 10000, false);
+    println!("\t- Solution 2 is : {}", solution_2);
 }
-
 
 fn get_input() -> Vec<Monkey> {
     let split_separator = format!("{}{}", LINE_ENDING, LINE_ENDING);
@@ -19,7 +17,6 @@ fn get_input() -> Vec<Monkey> {
         .map(|line| Monkey::from_str(line).unwrap())
         .collect()
 }
-
 
 fn play_rounds(monkeys: &mut [Monkey], round_nbr: usize, puzzle_part_one: bool) -> u128 {
     for _ in 0..round_nbr {
@@ -33,7 +30,6 @@ fn play_rounds(monkeys: &mut [Monkey], round_nbr: usize, puzzle_part_one: bool) 
         .take(2)
         .product()
 }
-
 
 fn play_round(monkeys: &mut [Monkey], puzzle_part_one: bool) {
     let mut new_item_values_and_owners = vec![];
@@ -64,22 +60,20 @@ fn play_round(monkeys: &mut [Monkey], puzzle_part_one: bool) {
     }
 }
 
-
 fn apply_operation(operation: &(Value, Op, Value), value: &u128) -> u128 {
     let left_value = match operation.0 {
         Value::RawValue(val) => val,
-        Value::Old => *value
+        Value::Old => *value,
     };
     let right_value = match operation.2 {
         Value::RawValue(val) => val,
-        Value::Old => *value
+        Value::Old => *value,
     };
     match operation.1 {
-        Op::Add => (left_value + right_value),
-        Op::Mult => (left_value * right_value)
+        Op::Add => left_value + right_value,
+        Op::Mult => left_value * right_value,
     }
 }
-
 
 #[derive(Debug)]
 enum Value {
@@ -93,11 +87,10 @@ impl FromStr for Value {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "old" => Ok(Self::Old),
-            _ => Ok(Self::RawValue(s.parse().unwrap()))
+            _ => Ok(Self::RawValue(s.parse().unwrap())),
         }
     }
 }
-
 
 #[derive(Debug)]
 enum Op {
@@ -112,14 +105,14 @@ impl FromStr for Op {
         match s {
             "*" => Ok(Self::Mult),
             "+" => Ok(Self::Add),
-            _ => Err("Wrong value".to_owned())
+            _ => Err("Wrong value".to_owned()),
         }
     }
 }
 
 #[derive(Debug)]
 struct Monkey {
-    id: usize,
+    _id: usize,
     items: Vec<u128>,
     operation: (Value, Op, Value),
     test_divisible_by: u128,
@@ -142,8 +135,12 @@ impl FromStr for Monkey {
 
         // ID
         let parts: Vec<&str> = header.split(':').collect();
-        let id = parts[0].split_whitespace().last().ok_or("missing number")?
-            .parse().expect("invalid number");
+        let id = parts[0]
+            .split_whitespace()
+            .last()
+            .ok_or("missing number")?
+            .parse()
+            .expect("invalid number");
 
         // Starting items
         let parts: Vec<&str> = items.split(':').collect();
@@ -175,7 +172,7 @@ impl FromStr for Monkey {
         let if_false = parts[1].parse().unwrap();
 
         Ok(Monkey {
-            id,
+            _id: id,
             items: starting_items,
             operation,
             test_divisible_by,
