@@ -100,7 +100,6 @@ fn get_packet(s: &str) -> Option<PacketData> {
     })
 }
 
-// TODO : Better split ?
 fn get_input() -> Vec<(PacketData, PacketData)> {
     let file = get_file("./src/day_13/input.txt");
     let split_separator = format!("{}{}", LINE_ENDING, LINE_ENDING);
@@ -158,8 +157,6 @@ fn is_in_right_order(left_packet: &PacketData, right_packet: &PacketData) -> Opt
         if left_packet_len != right_packet_len {
             return Some(left_packet_len < right_packet_len);
         }
-        // TODO compare les tailles direct
-        // TODO puis chaque element un a un
     }
 
     // If exactly one value is an integer, convert the integer to a list which contains that
