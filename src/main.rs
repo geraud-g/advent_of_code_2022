@@ -14,7 +14,7 @@ mod day_11;
 mod day_12;
 mod day_13;
 mod day_14;
-// mod day_15;
+mod day_15;
 // mod day_16;
 // mod day_17;
 // mod day_18;
@@ -58,7 +58,7 @@ fn solve_day(day: i32) {
         12 => day_12::day_12,
         13 => day_13::day_13,
         14 => day_14::day_14,
-        // 15 => day_15::day_15,
+        15 => day_15::day_15,
         // 16 => day_16::day_16,
         // 17 => day_17::day_17,
         // 18 => day_18::day_18,
