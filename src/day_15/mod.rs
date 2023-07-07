@@ -86,18 +86,13 @@ fn populate_ground_map(
     x_boundaries: CustomRange,
     y_boundaries: CustomRange,
 ) {
-    let min_x = max(x_boundaries.0, sensor.center.x - sensor.distance);
-    let max_x = min(x_boundaries.1, sensor.center.x + sensor.distance);
-    let min_y = max(y_boundaries.0, sensor.center.y - sensor.distance);
-    let max_y = min(y_boundaries.1, sensor.center.y + sensor.distance);
-
     for y_delta in 0..=sensor.distance {
         let current_y = sensor.center.y - (sensor.distance - y_delta);
-        if current_y < min_y {
+        if current_y < y_boundaries.0 {
             continue;
         }
-        let range_start = max(sensor.center.x - y_delta, min_x);
-        let range_end = min(sensor.center.x + y_delta, max_x);
+        let range_start = max(sensor.center.x - y_delta, x_boundaries.0);
+        let range_end = min(sensor.center.x + y_delta, x_boundaries.1);
         ground_map.entry(current_y).or_insert_with(Vec::new);
         update_row(
             ground_map.get_mut(&current_y).unwrap(),
@@ -107,11 +102,11 @@ fn populate_ground_map(
     }
     for y_delta in (0..sensor.distance).rev() {
         let current_y = sensor.center.y + (sensor.distance - y_delta);
-        if current_y > max_y {
+        if current_y > y_boundaries.1 {
             continue;
         }
-        let range_start = max(sensor.center.x - y_delta, min_x);
-        let range_end = min(sensor.center.x + y_delta, max_x);
+        let range_start = max(sensor.center.x - y_delta, x_boundaries.0);
+        let range_end = min(sensor.center.x + y_delta, x_boundaries.1);
         ground_map.entry(current_y).or_insert_with(Vec::new);
         update_row(
             ground_map.get_mut(&current_y).unwrap(),
@@ -121,35 +116,28 @@ fn populate_ground_map(
     }
 }
 
-fn update_row(row: &mut Vec<CustomRange>, range_start: CustomRangeInt, range_end: CustomRangeInt) {
-    let mut new_row = Vec::new();
-    let mut new_range = (range_start, range_end);
-    let mut merged = false;
 
-    for &(start, end) in row.iter() {
-        // Overlap or adjacent, merge the ranges
-        if !(new_range.1 < start || new_range.0 > end) {
-            new_range.0 = new_range.0.min(start);
-            new_range.1 = new_range.1.max(end);
-            merged = true;
+fn update_row(row: &mut Vec<CustomRange>, range_start: CustomRangeInt, range_end: CustomRangeInt) {
+    let mut new_range = (range_start, range_end);
+    let mut i = 0;
+
+    while i != row.len() {
+        if new_range.1 < row[i].0 || new_range.0 > row[i].1 {
+            // No overlap with the new_range, keep it as it is
+            i += 1;
         } else {
-            new_row.push((start, end));
+            // Overlap with new_range, merge them
+            new_range.0 = new_range.0.min(row[i].0);
+            new_range.1 = new_range.1.max(row[i].1);
+            row.remove(i);
         }
     }
 
-    if !merged {
-        new_row.push(new_range);
-    } else {
-        // Insert the merged range at the right position
-        let pos = new_row
-            .iter()
-            .position(|&r| r.0 > new_range.0)
-            .unwrap_or(new_row.len());
-        new_row.insert(pos, new_range);
-    }
-
-    *row = new_row;
+    // Insert the new (or merged) range at the correct position
+    let pos = row.iter().position(|&r| r.0 > new_range.0).unwrap_or(row.len());
+    row.insert(pos, new_range);
 }
+
 
 fn get_x_boundaries(sensors: &[Sensor]) -> CustomRange {
     let mut min_x = CustomRangeInt::max_value();
@@ -190,3 +178,4 @@ fn part_two(sensors: &[Sensor]) -> CustomRangeInt {
     }
     panic!("Solution not found for Day 15 Part 2")
 }
+// cargo run 15  55.30s user 0.95s system 99% cpu 56.619 total
