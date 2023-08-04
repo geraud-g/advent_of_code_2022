@@ -116,7 +116,6 @@ fn populate_ground_map(
     }
 }
 
-
 fn update_row(row: &mut Vec<CustomRange>, range_start: CustomRangeInt, range_end: CustomRangeInt) {
     let mut new_range = (range_start, range_end);
     let mut i = 0;
@@ -134,10 +133,12 @@ fn update_row(row: &mut Vec<CustomRange>, range_start: CustomRangeInt, range_end
     }
 
     // Insert the new (or merged) range at the correct position
-    let pos = row.iter().position(|&r| r.0 > new_range.0).unwrap_or(row.len());
+    let pos = row
+        .iter()
+        .position(|&r| r.0 > new_range.0)
+        .unwrap_or(row.len());
     row.insert(pos, new_range);
 }
-
 
 fn get_x_boundaries(sensors: &[Sensor]) -> CustomRange {
     let mut min_x = CustomRangeInt::max_value();
