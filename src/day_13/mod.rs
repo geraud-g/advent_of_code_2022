@@ -9,13 +9,86 @@ pub fn day_13() {
     let solution_1 = part_one(&packet_data_pairs);
     println!("\t- Solution 1 is : {}", solution_1);
 
-    // let solution_2 = part_two(&inputs);
-    // println!("\t- Solution 2 is : {}", solution_2);
+    let mut packet_data = get_input_part_2();
+    let solution_2 = part_two(&mut packet_data);
+    println!("\t- Solution 2 is : {}", solution_2);
 }
 
+#[derive(Eq, PartialEq)]
 pub struct PacketData {
     content: Vec<PacketData>,
     pub value: Option<u8>,
+}
+
+impl Ord for PacketData {
+    fn cmp(&self, other: &Self) -> Ordering {
+        // If both values are integers, the lower integer should come first. If the left integer is
+        // lower than the right integer, the inputs are in the right order. If the left integer is
+        // higher than the right integer, the inputs are not in the right order. Otherwise, the inputs
+        // are the same integer; continue checking the next part of the input.
+        if let (Some(left_val), Some(right_val)) = (self.value, other.value) {
+            return match left_val.cmp(&right_val) {
+                Ordering::Greater => Ordering::Greater,
+                Ordering::Less => Ordering::Less,
+                Ordering::Equal => Ordering::Equal,
+            };
+        }
+
+        // If both values are lists, compare the first value of each list, then the second value,
+        // and so on. If the left list runs out of items first, the inputs are in the right order.
+        // If the right list runs out of items first, the inputs are not in the right order. If the
+        // lists are the same length and no comparison makes a decision about the order, continue
+        // checking the next part of the input.
+        let left_packet_len = self.content.len();
+        let right_packet_len = other.content.len();
+        if self.is_list() && other.is_list() {
+            for i in 0..left_packet_len {
+                if i >= left_packet_len || i >= right_packet_len {
+                    break;
+                }
+                let val = self.content[i].cmp(&other.content[i]);
+                if !val.is_eq() {
+                    return val;
+                }
+            }
+
+            if left_packet_len != right_packet_len {
+                return left_packet_len.cmp(&right_packet_len);
+            }
+        }
+
+        // If exactly one value is an integer, convert the integer to a list which contains that
+        // integer as its only value, then retry the comparison. For example, if comparing [0,0,0] and 2
+        // , convert the right value to [2] (a list containing 2); the result is then found by instead
+        // comparing [0,0,0] and [2].
+        if self.is_integer() {
+            return PacketData {
+                content: vec![PacketData {
+                    content: vec![],
+                    value: self.value,
+                }],
+                value: None,
+            }
+            .cmp(other);
+        }
+
+        if other.is_integer() {
+            return self.cmp(&PacketData {
+                content: vec![PacketData {
+                    content: vec![],
+                    value: other.value,
+                }],
+                value: None,
+            });
+        }
+        Ordering::Equal
+    }
+}
+
+impl PartialOrd for PacketData {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
 }
 
 impl fmt::Debug for PacketData {
@@ -113,80 +186,43 @@ fn get_input() -> Vec<(PacketData, PacketData)> {
     packet_pairs
 }
 
+fn get_input_part_2() -> Vec<(PacketData)> {
+    let file = get_file("./src/day_13/input.txt");
+    let split_separator = format!("{}{}", LINE_ENDING, LINE_ENDING);
+    let mut packet_pairs = vec![];
+    for chunk in file.split(&split_separator) {
+        let values: Vec<&str> = chunk.split_whitespace().collect();
+        let packet_left = PacketData::from_str(values[0]).unwrap();
+        let packet_right = PacketData::from_str(values[1]).unwrap();
+        packet_pairs.push(packet_left);
+        packet_pairs.push(packet_right);
+    }
+    packet_pairs.push(PacketData::from_str("[[2]]").unwrap());
+    packet_pairs.push(PacketData::from_str("[[6]]").unwrap());
+    packet_pairs
+}
+
 fn part_one(packet_data_pairs: &[(PacketData, PacketData)]) -> usize {
     let mut result = 0;
     for (idx, (left, right)) in packet_data_pairs.iter().enumerate() {
-        if let Some(true) = is_in_right_order(left, right) {
+        if left.cmp(right).is_le() {
             result += idx + 1
         }
     }
     result
 }
 
-fn is_in_right_order(left_packet: &PacketData, right_packet: &PacketData) -> Option<bool> {
-    // If both values are integers, the lower integer should come first. If the left integer is
-    // lower than the right integer, the inputs are in the right order. If the left integer is
-    // higher than the right integer, the inputs are not in the right order. Otherwise, the inputs
-    // are the same integer; continue checking the next part of the input.
-    if let (Some(left_val), Some(right_val)) = (left_packet.value, right_packet.value) {
-        return match left_val.cmp(&right_val) {
-            Ordering::Greater => Some(false),
-            Ordering::Less => Some(true),
-            Ordering::Equal => None,
-        };
-    }
-
-    // If both values are lists, compare the first value of each list, then the second value,
-    // and so on. If the left list runs out of items first, the inputs are in the right order.
-    // If the right list runs out of items first, the inputs are not in the right order. If the
-    // lists are the same length and no comparison makes a decision about the order, continue
-    // checking the next part of the input.
-    let left_packet_len = left_packet.content.len();
-    let right_packet_len = right_packet.content.len();
-    if left_packet.is_list() && right_packet.is_list() {
-        for i in 0..left_packet_len {
-            if i >= left_packet_len || i >= right_packet_len {
-                break;
-            }
-            let val = is_in_right_order(&left_packet.content[i], &right_packet.content[i]);
-            if val.is_some() {
-                return val;
-            }
-        }
-
-        if left_packet_len != right_packet_len {
-            return Some(left_packet_len < right_packet_len);
-        }
-    }
-
-    // If exactly one value is an integer, convert the integer to a list which contains that
-    // integer as its only value, then retry the comparison. For example, if comparing [0,0,0] and 2
-    // , convert the right value to [2] (a list containing 2); the result is then found by instead
-    // comparing [0,0,0] and [2].
-    if left_packet.is_integer() {
-        return is_in_right_order(
-            &PacketData {
-                content: vec![PacketData {
-                    content: vec![],
-                    value: left_packet.value,
-                }],
-                value: None,
-            },
-            right_packet,
-        );
-    }
-
-    if right_packet.is_integer() {
-        return is_in_right_order(
-            left_packet,
-            &PacketData {
-                content: vec![PacketData {
-                    content: vec![],
-                    value: right_packet.value,
-                }],
-                value: None,
-            },
-        );
-    }
-    None
+fn part_two(packet_data: &mut [PacketData]) -> usize {
+    packet_data.sort();
+    let divider_1_index = packet_data
+        .iter()
+        .position(|p| *p == PacketData::from_str("[[2]]").unwrap())
+        .unwrap()
+        + 1;
+    let divider_2_index = packet_data
+        .iter()
+        .position(|p| *p == PacketData::from_str("[[6]]").unwrap())
+        .unwrap()
+        + 1;
+    divider_1_index * divider_2_index
 }
