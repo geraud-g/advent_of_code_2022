@@ -22,7 +22,7 @@ mod day_19;
 mod day_20;
 mod day_21;
 // mod day_22;
-// mod day_23;
+mod day_23;
 // mod day_24;
 // mod day_25;
 
@@ -66,7 +66,7 @@ fn solve_day(day: i32) {
         20 => day_20::day_20,
         21 => day_21::day_21,
         // 22 => day_22::day_22,
-        // 23 => day_23::day_23,
+        23 => day_23::day_23,
         // 24 => day_24::day_24,
         _ => unimplemented!(),
     };
