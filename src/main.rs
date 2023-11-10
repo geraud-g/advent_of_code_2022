@@ -23,7 +23,7 @@ mod day_20;
 mod day_21;
 // mod day_22;
 mod day_23;
-// mod day_24;
+mod day_24;
 // mod day_25;
 
 fn main() {
@@ -67,7 +67,7 @@ fn solve_day(day: i32) {
         21 => day_21::day_21,
         // 22 => day_22::day_22,
         23 => day_23::day_23,
-        // 24 => day_24::day_24,
+        24 => day_24::day_24,
         _ => unimplemented!(),
     };
     println!("# Processing Day {} :", day);
