@@ -30,11 +30,14 @@ Each solution resides in its respective directory under `src`.
 | Day 22 |   ⭐    |        | [Day 22](src/day_22) |
 | Day 23 |   ⭐    |   ⭐    | [Day 23](src/day_23) |
 | Day 24 |   ⭐    |   ⭐    | [Day 24](src/day_24) |
-| Day 25 |        |        | -                    |
+| Day 25 |   ⭐    |        | [Day 25](src/day_25) |
 
 ## Running the Code
+
 To run a specific day's code, such as day 01, you can use the command
+
 ``` bash 
 cargo run 1
 ```
+
 Modify the command to match the desired day.
